@@ -27,6 +27,12 @@ nav a {
     font-weight: bold;
 }
 
+nav a.active {
+    color: #ff0080;
+    border-bottom: 2px solid #ff0080;
+    padding-bottom: 0.25rem;
+}
+
 section {
     padding: 2rem;
     border-bottom: 1px solid #e0e0e0;
