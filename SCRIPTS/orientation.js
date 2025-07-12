@@ -89,13 +89,20 @@ const q1 = new THREE.Quaternion(-Math.sqrt(0.5), 0, 0, Math.sqrt(0.5));
 let calibrationQuaternion = new THREE.Quaternion();
 
 // ====== PERMISSION HANDLER ====== //
-function requestMotionPermission() {
+async function requestMotionPermission() {
   if (
     typeof DeviceOrientationEvent !== 'undefined' &&
     typeof DeviceOrientationEvent.requestPermission === 'function'
   ) {
-    DeviceOrientationEvent.requestPermission().catch(console.error);
+    try {
+      const response = await DeviceOrientationEvent.requestPermission();
+      return response === 'granted';
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
   }
+  return true;
 }
 
 // ====== DEVICE ORIENTATION HANDLER ====== //
@@ -144,11 +151,17 @@ window.addEventListener('orientationchange', () => {
 });
 
 // ====== CALIBRATION BUTTON ====== //
-function calibrateGrid() {
-  requestMotionPermission();
-  calibrationQuaternion.copy(computeQuaternion(alpha, beta, gamma, screenOrientation));
-  isCalibrated = true;
-  document.getElementById('rotation-data').innerHTML = 'GRID SYNCHRONIZED.';
+async function calibrateGrid() {
+  const granted = await requestMotionPermission();
+  if (granted) {
+    calibrationQuaternion.copy(
+      computeQuaternion(alpha, beta, gamma, screenOrientation)
+    );
+    isCalibrated = true;
+    document.getElementById('rotation-data').innerHTML = 'GRID SYNCHRONIZED.';
+  } else {
+    document.getElementById('rotation-data').innerHTML = 'MOTION PERMISSION DENIED.';
+  }
 }
 
 document.getElementById('calibrate-btn').addEventListener('click', calibrateGrid);
