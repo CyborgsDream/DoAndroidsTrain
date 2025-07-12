@@ -80,6 +80,14 @@
         // ====== SENSOR DATA ====== //
         let alpha = 0, beta = 0, gamma = 0;
         let isCalibrated = false;
+
+        // ====== PERMISSION HANDLER ====== //
+        function requestMotionPermission() {
+            if (typeof DeviceOrientationEvent !== 'undefined' &&
+                typeof DeviceOrientationEvent.requestPermission === 'function') {
+                DeviceOrientationEvent.requestPermission().catch(console.error);
+            }
+        }
         let calibrationOffset = { alpha: 0, beta: 0, gamma: 0 };
 
         // ====== DEVICE ORIENTATION HANDLER ====== //
@@ -112,6 +120,7 @@
 
         // ====== CALIBRATION BUTTON ====== //
         document.getElementById('calibrate-btn').addEventListener('click', () => {
+            requestMotionPermission();
             calibrationOffset = { alpha, beta, gamma };
             isCalibrated = true;
             document.getElementById('rotation-data').innerHTML = "GRID SYNCHRONIZED.";
