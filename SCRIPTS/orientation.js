@@ -12,7 +12,8 @@ const camera = new THREE.PerspectiveCamera(
 camera.rotation.order = 'YXZ';
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setClearColor(0x000000, 0);
+// match the clear color with the fog color so objects fade into the background
+renderer.setClearColor(scene.fog.color);
 document.getElementById('container').appendChild(renderer.domElement);
 
 // ====== TRON-STYLE GRID ====== //
@@ -24,6 +25,18 @@ gridHelper.material.opacity = 0.8;
 gridHelper.material.fog = true;
 gridHelper.position.y = -2;
 scene.add(gridHelper);
+
+// ====== FOG DEMO OBJECTS ====== //
+// Add cubes stretching into the distance so the fog effect is visible
+const fogDemoGroup = new THREE.Group();
+for (let i = 0; i < 20; i++) {
+  const geom = new THREE.BoxGeometry(1, 1, 1);
+  const mat = new THREE.MeshBasicMaterial({ color: 0x00ffff });
+  const cube = new THREE.Mesh(geom, mat);
+  cube.position.set(0, 0.5, -i * 2);
+  fogDemoGroup.add(cube);
+}
+scene.add(fogDemoGroup);
 
 // ====== ENERGY TRAIL ====== //
 const trailGeometry = new THREE.BufferGeometry();
