@@ -101,9 +101,9 @@
                     γ: ${adjustedGamma.toFixed(1)}°<br>
                 `;
 
-                // Rotate the grid to match device
-                gridHelper.rotation.x = THREE.MathUtils.degToRad(adjustedBeta);
-                gridHelper.rotation.z = THREE.MathUtils.degToRad(adjustedGamma);
+                // Counter-rotate the grid so it stays level with the horizon
+                gridHelper.rotation.x = THREE.MathUtils.degToRad(-adjustedBeta);
+                gridHelper.rotation.z = THREE.MathUtils.degToRad(-adjustedGamma);
                 
                 // Update energy trail (simulated)
                 updateEnergyTrail(adjustedBeta, adjustedGamma);
