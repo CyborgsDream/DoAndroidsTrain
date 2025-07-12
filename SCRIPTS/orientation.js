@@ -45,6 +45,19 @@ verticalGridHelper.material.fog = true;
 verticalGridHelper.rotation.z = Math.PI / 2;
 scene.add(verticalGridHelper);
 
+// Sky grid to mirror the ground plane
+const skyGridHelper = new THREE.GridHelper(
+  gridSize,
+  gridSize * 2,
+  0x00ffff,
+  0x00ffff
+);
+skyGridHelper.material.transparent = true;
+skyGridHelper.material.opacity = 0.3;
+skyGridHelper.material.fog = true;
+skyGridHelper.position.y = 2;
+scene.add(skyGridHelper);
+
 // ====== FOG DEMO OBJECTS ====== //
 // Add cubes stretching into the distance so the fog effect is visible
 const fogDemoGroup = new THREE.Group();
