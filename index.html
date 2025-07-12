@@ -72,6 +72,7 @@
         const gridHelper = new THREE.GridHelper(gridSize, gridSize * 2, 0x00ffff, 0x00ffff);
         gridHelper.material.transparent = true;
         gridHelper.material.opacity = 0.8;
+        gridHelper.material.fog = true; // allow fog to fade grid lines with distance
         gridHelper.position.y = -2;
         scene.add(gridHelper);
 
