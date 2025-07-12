@@ -19,13 +19,31 @@ document.getElementById('container').appendChild(renderer.domElement);
 
 // ====== TRON-STYLE GRID ====== //
 const gridSize = 20;
-const gridHelper = new THREE.GridHelper(gridSize, gridSize * 2, 0x00ffff, 0x00ffff);
+const gridHelper = new THREE.GridHelper(
+  gridSize,
+  gridSize * 2,
+  0x00ffff,
+  0x00ffff
+);
 gridHelper.material.transparent = true;
 gridHelper.material.opacity = 0.8;
 // enable fog to fade grid lines with distance
 gridHelper.material.fog = true;
 gridHelper.position.y = -2;
 scene.add(gridHelper);
+
+// Additional grid rotated vertically for better spatial reference
+const verticalGridHelper = new THREE.GridHelper(
+  gridSize,
+  gridSize * 2,
+  0x00ffff,
+  0x00ffff
+);
+verticalGridHelper.material.transparent = true;
+verticalGridHelper.material.opacity = 0.4;
+verticalGridHelper.material.fog = true;
+verticalGridHelper.rotation.z = Math.PI / 2;
+scene.add(verticalGridHelper);
 
 // ====== FOG DEMO OBJECTS ====== //
 // Add cubes stretching into the distance so the fog effect is visible
