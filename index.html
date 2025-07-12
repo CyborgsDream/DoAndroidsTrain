@@ -1,52 +1,154 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Do Androids Train?</title>
-    <link rel="stylesheet" href="STYLES/MAIN.CSS">
-    <script src="SCRIPTS/main.js" defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>Tron-Style Fitness Tracker</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #000;
+            font-family: 'Arial', sans-serif;
+            color: #00ffff;
+        }
+        #container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        #ui {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 100;
+            text-shadow: 0 0 5px #00ffff;
+        }
+        #calibration {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+            z-index: 100;
+        }
+        button {
+            background: rgba(0, 200, 200, 0.3);
+            border: 1px solid #00ffff;
+            color: #00ffff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: rgba(0, 200, 200, 0.5);
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>Do Androids Train?</h1>
-        <nav>
-            <a href="#home" class="active">Home</a>
-            <a href="#adventure">Adventure</a>
-            <a href="#comic">Comic</a>
-            <a href="#coach">Coach</a>
-            <a href="#profile">Profile</a>
-            <a href="tracker.html">Tracker</a>
-        </nav>
-    </header>
+    <div id="container"></div>
+    <div id="ui">
+        <h1>TRON KINETIC TRACKER</h1>
+        <p id="rotation-data">Awaiting spatial calibration...</p>
+    </div>
+    <div id="calibration">
+        <button id="calibrate-btn">CALIBRATE GRID</button>
+    </div>
 
-    <section id="home">
-        <h2>Welcome</h2>
-        <p>A fusion of biomechanical fitness, urban adventure and AI coaching inspired by retro comics.</p>
-    </section>
+    <!-- Three.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script>
+        // ====== INITIALIZATION ====== //
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0x000000, 0);
+        document.getElementById('container').appendChild(renderer.domElement);
 
-    <section id="adventure">
-        <h2>Urban Adventure</h2>
-        <p>Explore your city with daily walking challenges and collect comic fragments.</p>
-    </section>
+        // ====== TRON-STYLE GRID ====== //
+        const gridSize = 20;
+        const gridHelper = new THREE.GridHelper(gridSize, gridSize * 2, 0x00ffff, 0x00ffff);
+        gridHelper.position.y = -2;
+        scene.add(gridHelper);
 
-    <section id="comic">
-        <h2>Retro Comic Story</h2>
-        <p>Unlock panels as you progress on your fitness journey.</p>
-    </section>
+        // ====== ENERGY TRAIL ====== //
+        const trailGeometry = new THREE.BufferGeometry();
+        const trailMaterial = new THREE.LineBasicMaterial({ color: 0x00ffff, linewidth: 2 });
+        const trail = new THREE.Line(trailGeometry, trailMaterial);
+        scene.add(trail);
 
-    <section id="coach">
-        <h2>AI Coach</h2>
-        <p>Chat with Diana or Aria for personalized tips and motivation.</p>
-    </section>
+        // ====== SENSOR DATA ====== //
+        let alpha = 0, beta = 0, gamma = 0;
+        let isCalibrated = false;
+        let calibrationOffset = { alpha: 0, beta: 0, gamma: 0 };
 
-    <section id="profile">
-        <h2>Your Profile</h2>
-        <p>Track your stats, medals and language progress.</p>
-    </section>
+        // ====== DEVICE ORIENTATION HANDLER ====== //
+        window.addEventListener('deviceorientation', (event) => {
+            alpha = event.alpha;  // Z-axis (compass)
+            beta = event.beta;    // X-axis (front-back tilt)
+            gamma = event.gamma;  // Y-axis (left-right tilt)
 
-    <footer>
-        <p>&copy; 2025 Do Androids Train?</p>
-    </footer>
+            if (isCalibrated) {
+                const adjustedAlpha = alpha - calibrationOffset.alpha;
+                const adjustedBeta = beta - calibrationOffset.beta;
+                const adjustedGamma = gamma - calibrationOffset.gamma;
 
-</body></html>
+                // Update UI
+                document.getElementById('rotation-data').innerHTML = `
+                    KINETIC FEEDBACK:<br>
+                    α: ${adjustedAlpha.toFixed(1)}°<br>
+                    β: ${adjustedBeta.toFixed(1)}°<br>
+                    γ: ${adjustedGamma.toFixed(1)}°<br>
+                `;
+
+                // Rotate the grid to match device
+                gridHelper.rotation.x = THREE.MathUtils.degToRad(adjustedBeta);
+                gridHelper.rotation.z = THREE.MathUtils.degToRad(adjustedGamma);
+                
+                // Update energy trail (simulated)
+                updateEnergyTrail(adjustedBeta, adjustedGamma);
+            }
+        });
+
+        // ====== CALIBRATION BUTTON ====== //
+        document.getElementById('calibrate-btn').addEventListener('click', () => {
+            calibrationOffset = { alpha, beta, gamma };
+            isCalibrated = true;
+            document.getElementById('rotation-data').innerHTML = "GRID SYNCHRONIZED.";
+        });
+
+        // ====== ENERGY TRAIL ANIMATION ====== //
+        function updateEnergyTrail(beta, gamma) {
+            const points = [];
+            const segments = 20;
+            
+            for (let i = 0; i <= segments; i++) {
+                const t = i / segments;
+                const x = Math.sin(t * Math.PI * 2) * 5 * (gamma / 90);
+                const y = Math.cos(t * Math.PI * 2) * 5 * (beta / 90);
+                const z = -t * 5;
+                points.push(new THREE.Vector3(x, y, z));
+            }
+            
+            trailGeometry.setFromPoints(points);
+        }
+
+        // ====== CAMERA POSITION ====== //
+        camera.position.z = 10;
+
+        // ====== RENDER LOOP ====== //
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // ====== RESPONSIVE DESIGN ====== //
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
