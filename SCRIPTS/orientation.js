@@ -2,7 +2,8 @@
 
 // ====== INITIALIZATION ====== //
 const scene = new THREE.Scene();
-scene.fog = new THREE.Fog(0x000000, 15, 35);
+// Exponential fog for smoother depth shading
+scene.fog = new THREE.FogExp2(0x000000, 0.05);
 const camera = new THREE.PerspectiveCamera(
   75,
   window.innerWidth / window.innerHeight,
