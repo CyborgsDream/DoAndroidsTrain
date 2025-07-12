@@ -1,6 +1,6 @@
 {
   "name": "doandroidstrain",
-  "version": "0.0.2",
+  "version": "0.0.2b",
   "description": "TRON-style orientation tracker demo",
   "scripts": {
     "test": "node test/main.test.js"
