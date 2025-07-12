@@ -47,7 +47,7 @@
 <body>
     <div id="container"></div>
     <div id="ui">
-        <h1>TRON KINETIC TRACKER</h1>
+        <h1>TRON KINETIC TRACKER v0.0.2</h1>
         <p id="rotation-data">Awaiting spatial calibration...</p>
     </div>
     <div id="calibration">
@@ -109,9 +109,9 @@
                     γ: ${adjustedGamma.toFixed(1)}°<br>
                 `;
 
-                // Counter-rotate the grid so it stays level with the horizon
-                gridHelper.rotation.x = THREE.MathUtils.degToRad(-adjustedBeta);
-                gridHelper.rotation.z = THREE.MathUtils.degToRad(-adjustedGamma);
+                // Rotate the grid to follow the device orientation
+                gridHelper.rotation.x = THREE.MathUtils.degToRad(adjustedBeta);
+                gridHelper.rotation.z = THREE.MathUtils.degToRad(adjustedGamma);
                 
                 // Update energy trail (simulated)
                 updateEnergyTrail(adjustedBeta, adjustedGamma);
