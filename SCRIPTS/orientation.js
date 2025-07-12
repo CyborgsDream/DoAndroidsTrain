@@ -112,7 +112,7 @@ window.addEventListener('orientationchange', () => {
 });
 
 // ====== CALIBRATION BUTTON ====== //
-export function calibrateGrid() {
+function calibrateGrid() {
   requestMotionPermission();
   calibrationQuaternion.copy(computeQuaternion(alpha, beta, gamma, screenOrientation));
   isCalibrated = true;
