@@ -104,6 +104,10 @@ const q0 = new THREE.Quaternion();
 const q1 = new THREE.Quaternion(-Math.sqrt(0.5), 0, 0, Math.sqrt(0.5));
 let calibrationQuaternion = new THREE.Quaternion();
 
+// ====== TRANSLATION STATE ====== //
+let velocityZ = 0;
+let lastMotionTime = null;
+
 // ====== PERMISSION HANDLER ====== //
 async function requestMotionPermission() {
   if (
@@ -164,6 +168,28 @@ window.addEventListener('deviceorientation', (event) => {
 
 window.addEventListener('orientationchange', () => {
   screenOrientation = window.orientation || (screen.orientation && screen.orientation.angle) || 0;
+});
+
+// ====== DEVICE MOTION HANDLER ====== //
+window.addEventListener('devicemotion', (event) => {
+  const now = event.timeStamp || Date.now();
+  if (lastMotionTime === null) {
+    lastMotionTime = now;
+    return;
+  }
+  const dt = (now - lastMotionTime) / 1000;
+  lastMotionTime = now;
+
+  const accelZ = event.acceleration && event.acceleration.z;
+  if (typeof accelZ === 'number') {
+    velocityZ += accelZ * dt;
+    const dz = velocityZ * dt;
+    velocityZ *= 0.98; // simple damping
+    gridHelper.position.z += dz;
+    verticalGridHelper.position.z += dz;
+    skyGridHelper.position.z += dz;
+    cubeGroup.position.z += dz;
+  }
 });
 
 // ====== CALIBRATION BUTTON ====== //
