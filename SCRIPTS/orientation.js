@@ -41,7 +41,8 @@ const verticalGridHelper = new THREE.GridHelper(
 verticalGridHelper.material.transparent = true;
 verticalGridHelper.material.opacity = 0.4;
 // verticalGridHelper.material.fog = true;
-verticalGridHelper.rotation.z = Math.PI / 2;
+// Rotate around the X axis so the grid stands upright
+verticalGridHelper.rotation.x = Math.PI / 2;
 scene.add(verticalGridHelper);
 
 // Sky grid to mirror the ground plane
