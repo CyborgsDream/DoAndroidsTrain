@@ -17,13 +17,28 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor(0x000000);
 document.getElementById('container').appendChild(renderer.domElement);
 
+// Allow color customization via window.TRON_COLOR or ?color=00ff00
+const TRON_COLOR = (() => {
+  const fromGlobal = typeof window.TRON_COLOR !== 'undefined' ? window.TRON_COLOR : null;
+  const param = new URLSearchParams(window.location.search).get('color');
+  const input = param || fromGlobal;
+  if (input) {
+    const hex = input.toString().replace(/^#/, '').replace(/^0x/, '');
+    const val = parseInt(hex, 16);
+    if (!Number.isNaN(val)) {
+      return val;
+    }
+  }
+  return 0x00ffff;
+})();
+
 // ====== TRON-STYLE GRID ====== //
 const gridSize = 20;
 const gridHelper = new THREE.GridHelper(
   gridSize,
   gridSize * 2,
-  0x00ffff,
-  0x00ffff
+  TRON_COLOR,
+  TRON_COLOR
 );
 gridHelper.material.transparent = true;
 gridHelper.material.opacity = 0.8;
@@ -35,8 +50,8 @@ scene.add(gridHelper);
 const verticalGridHelper = new THREE.GridHelper(
   gridSize,
   gridSize * 2,
-  0x00ffff,
-  0x00ffff
+  TRON_COLOR,
+  TRON_COLOR
 );
 verticalGridHelper.material.transparent = true;
 verticalGridHelper.material.opacity = 0.4;
@@ -49,8 +64,8 @@ scene.add(verticalGridHelper);
 const skyGridHelper = new THREE.GridHelper(
   gridSize,
   gridSize * 2,
-  0x00ffff,
-  0x00ffff
+  TRON_COLOR,
+  TRON_COLOR
 );
 skyGridHelper.material.transparent = true;
 // stronger line visibility for the sky grid
@@ -64,7 +79,7 @@ scene.add(skyGridHelper);
 const cubeGroup = new THREE.Group();
 for (let i = 0; i < 20; i++) {
   const geom = new THREE.BoxGeometry(1, 1, 1);
-  const mat = new THREE.MeshBasicMaterial({ color: 0x00ffff, wireframe: true });
+  const mat = new THREE.MeshBasicMaterial({ color: TRON_COLOR, wireframe: true });
   const cube = new THREE.Mesh(geom, mat);
   cube.position.set(0, 0.5, -i * 2);
   cubeGroup.add(cube);
@@ -73,7 +88,7 @@ scene.add(cubeGroup);
 
 // ====== ENERGY TRAIL ====== //
 const trailGeometry = new THREE.BufferGeometry();
-const trailMaterial = new THREE.LineBasicMaterial({ color: 0x00ffff, linewidth: 2 });
+const trailMaterial = new THREE.LineBasicMaterial({ color: TRON_COLOR, linewidth: 2 });
 const trail = new THREE.Line(trailGeometry, trailMaterial);
 scene.add(trail);
 
