@@ -214,3 +214,14 @@ window.addEventListener('resize', () => {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
+// ====== MODULE EXPORTS (FOR TESTING) ====== //
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    calibrateGrid,
+    computeQuaternion,
+    updateEnergyTrail,
+    trailGeometry,
+    camera,
+  };
+}

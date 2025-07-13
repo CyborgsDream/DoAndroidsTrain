@@ -3,7 +3,7 @@
   "version": "0.0.3",
   "description": "TRON-style orientation tracker demo",
   "scripts": {
-    "test": "node test/main.test.js"
+    "test": "node test/main.test.js && node test/orientation.test.js"
   },
   "keywords": [],
   "author": "",
