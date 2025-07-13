@@ -16,9 +16,35 @@
         <button id="calibrate-btn">CALIBRATE GRID</button>
     </div>
 
-    <!-- Three.js Library -->
-    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
-    <script src="SCRIPTS/orientation.js"></script>
+    <!-- Orientation loader chooses between 3D and SVG modes -->
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const mode = params.get('mode') === 'svg' ? 'svg' : 'three';
+
+        const toggleBtn = document.createElement('button');
+        toggleBtn.id = 'mode-btn';
+        toggleBtn.textContent = mode === 'svg' ? '3D MODE' : 'SVG MODE';
+        document.getElementById('calibration').appendChild(toggleBtn);
+        toggleBtn.addEventListener('click', () => {
+            params.set('mode', mode === 'svg' ? 'three' : 'svg');
+            window.location.search = params.toString();
+        });
+
+        function loadScript(src) {
+            const s = document.createElement('script');
+            s.src = src;
+            document.body.appendChild(s);
+        }
+
+        if (mode === 'svg') {
+            loadScript('SCRIPTS/orientation-svg.js');
+        } else {
+            const three = document.createElement('script');
+            three.src = 'https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js';
+            document.head.appendChild(three);
+            loadScript('SCRIPTS/orientation.js');
+        }
+    </script>
     <script src="SCRIPTS/main.js"></script>
 </body>
 </html>
