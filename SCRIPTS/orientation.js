@@ -2,8 +2,8 @@
 
 // ====== INITIALIZATION ====== //
 const scene = new THREE.Scene();
-// Exponential fog for smoother depth shading
-scene.fog = new THREE.FogExp2(0x000000, 0.05);
+// No fog in this version
+// scene.fog = new THREE.FogExp2(0x000000, 0.05);
 const camera = new THREE.PerspectiveCamera(
   75,
   window.innerWidth / window.innerHeight,
@@ -13,8 +13,8 @@ const camera = new THREE.PerspectiveCamera(
 camera.rotation.order = 'YXZ';
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
-// match the clear color with the fog color so objects fade into the background
-renderer.setClearColor(scene.fog.color);
+// use a fixed clear color as we are not using fog
+renderer.setClearColor(0x000000);
 document.getElementById('container').appendChild(renderer.domElement);
 
 // ====== TRON-STYLE GRID ====== //
@@ -27,8 +27,7 @@ const gridHelper = new THREE.GridHelper(
 );
 gridHelper.material.transparent = true;
 gridHelper.material.opacity = 0.8;
-// enable fog to fade grid lines with distance
-gridHelper.material.fog = true;
+// gridHelper.material.fog = true; // not used without fog
 gridHelper.position.y = -2;
 scene.add(gridHelper);
 
@@ -41,7 +40,7 @@ const verticalGridHelper = new THREE.GridHelper(
 );
 verticalGridHelper.material.transparent = true;
 verticalGridHelper.material.opacity = 0.4;
-verticalGridHelper.material.fog = true;
+// verticalGridHelper.material.fog = true;
 verticalGridHelper.rotation.z = Math.PI / 2;
 scene.add(verticalGridHelper);
 
@@ -53,22 +52,23 @@ const skyGridHelper = new THREE.GridHelper(
   0x00ffff
 );
 skyGridHelper.material.transparent = true;
-skyGridHelper.material.opacity = 0.3;
-skyGridHelper.material.fog = true;
+// stronger line visibility for the sky grid
+skyGridHelper.material.opacity = 0.8;
+// skyGridHelper.material.fog = true; // not used
 skyGridHelper.position.y = 2;
 scene.add(skyGridHelper);
 
-// ====== FOG DEMO OBJECTS ====== //
-// Add cubes stretching into the distance so the fog effect is visible
-const fogDemoGroup = new THREE.Group();
+// ====== REFERENCE CUBES ====== //
+// Add cubes stretching into the distance
+const cubeGroup = new THREE.Group();
 for (let i = 0; i < 20; i++) {
   const geom = new THREE.BoxGeometry(1, 1, 1);
-  const mat = new THREE.MeshBasicMaterial({ color: 0x00ffff });
+  const mat = new THREE.MeshBasicMaterial({ color: 0x00ffff, wireframe: true });
   const cube = new THREE.Mesh(geom, mat);
   cube.position.set(0, 0.5, -i * 2);
-  fogDemoGroup.add(cube);
+  cubeGroup.add(cube);
 }
-scene.add(fogDemoGroup);
+scene.add(cubeGroup);
 
 // ====== ENERGY TRAIL ====== //
 const trailGeometry = new THREE.BufferGeometry();
