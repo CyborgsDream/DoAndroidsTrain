@@ -75,16 +75,26 @@ skyGridHelper.position.y = 2;
 scene.add(skyGridHelper);
 
 // ====== REFERENCE CUBES ====== //
-// Add cubes stretching into the distance
-const cubeGroup = new THREE.Group();
-for (let i = 0; i < 20; i++) {
-  const geom = new THREE.BoxGeometry(1, 1, 1);
-  const mat = new THREE.MeshBasicMaterial({ color: TRON_COLOR, wireframe: true });
-  const cube = new THREE.Mesh(geom, mat);
-  cube.position.set(0, 0.5, -i * 2);
-  cubeGroup.add(cube);
+// Add cubes stretching into the distance. If this script runs more than once in
+// the same page, reuse the previous group to avoid duplicate rows.
+let cubeGroup = window.__cubeGroup;
+if (!cubeGroup) {
+  cubeGroup = new THREE.Group();
+  for (let i = 0; i < 20; i++) {
+    const geom = new THREE.BoxGeometry(1, 1, 1);
+    const mat = new THREE.MeshBasicMaterial({
+      color: TRON_COLOR,
+      wireframe: true,
+    });
+    const cube = new THREE.Mesh(geom, mat);
+    cube.position.set(0, 0.5, -i * 2);
+    cubeGroup.add(cube);
+  }
+  window.__cubeGroup = cubeGroup;
+  scene.add(cubeGroup);
+} else if (!scene.children.includes(cubeGroup)) {
+  scene.add(cubeGroup);
 }
-scene.add(cubeGroup);
 
 // ====== ENERGY TRAIL ====== //
 const trailGeometry = new THREE.BufferGeometry();
