@@ -121,29 +121,13 @@ const orientation = require('../SCRIPTS/orientation.js');
 // Export checks
 assert.strictEqual(typeof orientation.calibrateGrid, 'function');
 assert.strictEqual(typeof orientation.computeQuaternion, 'function');
-assert.strictEqual(typeof orientation.updateEnergyTrail, 'function');
+assert.strictEqual(typeof orientation.updateEnergyTrail, 'undefined');
 
 // computeQuaternion check
 const q = orientation.computeQuaternion(0, 0, 0, 0);
 const sq = Math.sqrt(0.5);
 assert.ok(Math.abs(q.x + sq) < 1e-6 && Math.abs(q.w - sq) < 1e-6,
   'computeQuaternion should handle zero orientation');
-
-// Mock orientation event
-const handler = window.listeners['deviceorientation'];
-orientation.trailGeometry.setFromPoints = function(points){ this.points = points; };
-handler({ type: 'deviceorientation', alpha: 0, beta: 10, gamma: 20 });
-
-const expectedQuat = orientation.computeQuaternion(0, 10, 20, 0);
-const camEuler = new THREE.Euler().setFromQuaternion(expectedQuat, 'YXZ');
-const expectedBeta = THREE.MathUtils.radToDeg(camEuler.x);
-const expectedGamma = THREE.MathUtils.radToDeg(camEuler.z);
-const pts = orientation.trailGeometry.points;
-assert.ok(Array.isArray(pts) && pts.length === 21, 'energy trail should have 21 points');
-assert.ok(Math.abs(pts[0].y - 5 * (expectedBeta / 90)) < 1e-6, 'first point y matches beta');
-assert.ok(Math.abs(pts[0].x) < 1e-6, 'first point x should be 0');
-
-assert.ok(Math.abs(pts[pts.length - 1].z + 5) < 1e-6, 'last point z should be -5');
 
 console.log('All orientation tests passed.');
 

@@ -46,19 +46,6 @@ gridHelper.material.opacity = 0.8;
 gridHelper.position.y = -2;
 scene.add(gridHelper);
 
-// Additional grid rotated vertically for better spatial reference
-const verticalGridHelper = new THREE.GridHelper(
-  gridSize,
-  gridSize * 2,
-  TRON_COLOR,
-  TRON_COLOR
-);
-verticalGridHelper.material.transparent = true;
-verticalGridHelper.material.opacity = 0.4;
-// verticalGridHelper.material.fog = true;
-// Rotate around the X axis so the grid stands upright
-verticalGridHelper.rotation.x = Math.PI / 2;
-scene.add(verticalGridHelper);
 
 // Sky grid to mirror the ground plane
 const skyGridHelper = new THREE.GridHelper(
@@ -74,33 +61,7 @@ skyGridHelper.material.opacity = 0.8;
 skyGridHelper.position.y = 2;
 scene.add(skyGridHelper);
 
-// ====== REFERENCE CUBES ====== //
-// Add cubes stretching into the distance. If this script runs more than once in
-// the same page, reuse the previous group to avoid duplicate rows.
-let cubeGroup = window.__cubeGroup;
-if (!cubeGroup) {
-  cubeGroup = new THREE.Group();
-  for (let i = 0; i < 20; i++) {
-    const geom = new THREE.BoxGeometry(1, 1, 1);
-    const mat = new THREE.MeshBasicMaterial({
-      color: TRON_COLOR,
-      wireframe: true,
-    });
-    const cube = new THREE.Mesh(geom, mat);
-    cube.position.set(0, 0.5, -i * 2);
-    cubeGroup.add(cube);
-  }
-  window.__cubeGroup = cubeGroup;
-  scene.add(cubeGroup);
-} else if (!scene.children.includes(cubeGroup)) {
-  scene.add(cubeGroup);
-}
 
-// ====== ENERGY TRAIL ====== //
-const trailGeometry = new THREE.BufferGeometry();
-const trailMaterial = new THREE.LineBasicMaterial({ color: TRON_COLOR, linewidth: 2 });
-const trail = new THREE.Line(trailGeometry, trailMaterial);
-scene.add(trail);
 
 // ====== SENSOR DATA ====== //
 let alpha = 0,
@@ -169,11 +130,6 @@ window.addEventListener('deviceorientation', (event) => {
   const camEuler = new THREE.Euler().setFromQuaternion(camera.quaternion, 'YXZ');
   document.getElementById('rotation-data').innerHTML = `KINETIC FEEDBACK:<br>α: ${THREE.MathUtils.radToDeg(camEuler.y).toFixed(1)}°<br>β: ${THREE.MathUtils.radToDeg(camEuler.x).toFixed(1)}°<br>γ: ${THREE.MathUtils.radToDeg(camEuler.z).toFixed(1)}°<br>`;
 
-  // Update energy trail (simulated)
-  updateEnergyTrail(
-    THREE.MathUtils.radToDeg(camEuler.x),
-    THREE.MathUtils.radToDeg(camEuler.z)
-  );
 });
 
 window.addEventListener('orientationchange', () => {
@@ -197,9 +153,7 @@ window.addEventListener('devicemotion', (event) => {
     velocityZ *= 0.98; // simple damping
     const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
     gridHelper.position.addScaledVector(forward, -dz);
-    verticalGridHelper.position.addScaledVector(forward, -dz);
     skyGridHelper.position.addScaledVector(forward, -dz);
-    cubeGroup.position.addScaledVector(forward, -dz);
   }
 });
 
@@ -219,22 +173,6 @@ async function calibrateGrid() {
 
 document.getElementById('calibrate-btn').addEventListener('click', calibrateGrid);
 
-// ====== ENERGY TRAIL ANIMATION ====== //
-function updateEnergyTrail(beta, gamma) {
-  const points = [];
-  const segments = 20;
-
-  for (let i = 0; i <= segments; i++) {
-    const t = i / segments;
-    const x = Math.sin(t * Math.PI * 2) * 5 * (gamma / 90);
-    const y = Math.cos(t * Math.PI * 2) * 5 * (beta / 90);
-    const z = -t * 5;
-    points.push(new THREE.Vector3(x, y, z));
-  }
-
-  trailGeometry.setFromPoints(points);
-}
-
 // ====== CAMERA POSITION ====== //
 camera.position.z = 0;
 
@@ -253,12 +191,10 @@ window.addEventListener('resize', () => {
 });
 
 // ====== MODULE EXPORTS (FOR TESTING) ====== //
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    calibrateGrid,
-    computeQuaternion,
-    updateEnergyTrail,
-    trailGeometry,
-    camera,
-  };
-}
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+      calibrateGrid,
+      computeQuaternion,
+      camera,
+    };
+  }
