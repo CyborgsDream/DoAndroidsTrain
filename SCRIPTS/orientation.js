@@ -185,10 +185,11 @@ window.addEventListener('devicemotion', (event) => {
     velocityZ += accelZ * dt;
     const dz = velocityZ * dt;
     velocityZ *= 0.98; // simple damping
-    gridHelper.position.z += dz;
-    verticalGridHelper.position.z += dz;
-    skyGridHelper.position.z += dz;
-    cubeGroup.position.z += dz;
+    const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+    gridHelper.position.addScaledVector(forward, -dz);
+    verticalGridHelper.position.addScaledVector(forward, -dz);
+    skyGridHelper.position.addScaledVector(forward, -dz);
+    cubeGroup.position.addScaledVector(forward, -dz);
   }
 });
 
@@ -225,7 +226,7 @@ function updateEnergyTrail(beta, gamma) {
 }
 
 // ====== CAMERA POSITION ====== //
-camera.position.z = 10;
+camera.position.z = 0;
 
 // ====== RENDER LOOP ====== //
 function animate() {
