@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>Tron-Style Fitness Tracker</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #000;
+            font-family: 'Arial', sans-serif;
+            color: #00ffff;
+        }
+        #container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        #ui {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 100;
+            text-shadow: 0 0 5px #00ffff;
+        }
+        #calibration {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+            z-index: 100;
+        }
+        button {
+            background: rgba(0, 200, 200, 0.3);
+            border: 1px solid #00ffff;
+            color: #00ffff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: rgba(0, 200, 200, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div id="container"></div>
+    <div id="ui">
+        <h1>TRON KINETIC TRACKER</h1>
+        <p id="rotation-data">Awaiting spatial calibration...</p>
+    </div>
+    <div id="calibration">
+        <button id="calibrate-btn">CALIBRATE GRID</button>
+    </div>
+
+    <!-- Three.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script>
+        // ====== INITIALIZATION ====== //
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0x000000, 0);
+        document.getElementById('container').appendChild(renderer.domElement);
+
+        // ====== TRON-STYLE GRID ====== //
+        const gridSize = 20;
+        const gridHelper = new THREE.GridHelper(gridSize, gridSize * 2, 0x00ffff, 0x00ffff);
+        gridHelper.position.y = -2;
+        scene.add(gridHelper);
+
+        // ====== ENERGY TRAIL ====== //
+        const trailGeometry = new THREE.BufferGeometry();
+        const trailMaterial = new THREE.LineBasicMaterial({ color: 0x00ffff, linewidth: 2 });
+        const trail = new THREE.Line(trailGeometry, trailMaterial);
+        scene.add(trail);
+
+        // ====== SENSOR DATA ====== //
+        let alpha = 0, beta = 0, gamma = 0;
+        let isCalibrated = false;
+        let calibrationOffset = { alpha: 0, beta: 0, gamma: 0 };
+
+        // ====== DEVICE ORIENTATION HANDLER ====== //
+        window.addEventListener('deviceorientation', (event) => {
+            alpha = event.alpha;  // Z-axis (compass)
+            beta = event.beta;    // X-axis (front-back tilt)
+            gamma = event.gamma;  // Y-axis (left-right tilt)
+
+            if (isCalibrated) {
+                const adjustedAlpha = alpha - calibrationOffset.alpha;
+                const adjustedBeta = beta - calibrationOffset.beta;
+                const adjustedGamma = gamma - calibrationOffset.gamma;
+
+                // Update UI
+                document.getElementById('rotation-data').innerHTML = `
+                    KINETIC FEEDBACK:<br>
+                    α: ${adjustedAlpha.toFixed(1)}°<br>
+                    β: ${adjustedBeta.toFixed(1)}°<br>
+                    γ: ${adjustedGamma.toFixed(1)}°<br>
+                `;
+
+                // Counter-rotate the grid so it stays level with the horizon
+                gridHelper.rotation.x = THREE.MathUtils.degToRad(-adjustedBeta);
+                gridHelper.rotation.z = THREE.MathUtils.degToRad(-adjustedGamma);
+                
+                // Update energy trail (simulated)
+                updateEnergyTrail(adjustedBeta, adjustedGamma);
+            }
+        });
+
+        // ====== CALIBRATION BUTTON ====== //
+        document.getElementById('calibrate-btn').addEventListener('click', () => {
+            calibrationOffset = { alpha, beta, gamma };
+            isCalibrated = true;
+            document.getElementById('rotation-data').innerHTML = "GRID SYNCHRONIZED.";
+        });
+
+        // ====== ENERGY TRAIL ANIMATION ====== //
+        function updateEnergyTrail(beta, gamma) {
+            const points = [];
+            const segments = 20;
+            
+            for (let i = 0; i <= segments; i++) {
+                const t = i / segments;
+                const x = Math.sin(t * Math.PI * 2) * 5 * (gamma / 90);
+                const y = Math.cos(t * Math.PI * 2) * 5 * (beta / 90);
+                const z = -t * 5;
+                points.push(new THREE.Vector3(x, y, z));
+            }
+            
+            trailGeometry.setFromPoints(points);
+        }
+
+        // ====== CAMERA POSITION ====== //
+        camera.position.z = 10;
+
+        // ====== RENDER LOOP ====== //
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // ====== RESPONSIVE DESIGN ====== //
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
