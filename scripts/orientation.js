@@ -104,6 +104,8 @@ scene.add(trail);
 
 // ====== MAP OVERLAY ====== //
 const mapGroup = new THREE.Group();
+// align map features with the ground grid
+mapGroup.position.y = -2;
 scene.add(mapGroup);
 let mapPlane = null;
 let centerLat = null;
@@ -167,6 +169,8 @@ function fetchGoogleMap(lat, lon) {
       }
       mapPlane = new THREE.Mesh(geom, mat);
       mapPlane.rotation.x = -Math.PI / 2;
+      // place the texture plane at the same level as the grid
+      mapPlane.position.y = -2;
       scene.add(mapPlane);
     },
     undefined,
