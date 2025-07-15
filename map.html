@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Live Vector Map with GPS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+    #map {
+      height: 100%;
+      width: 100%;
+    }
+    #status {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 1000;
+      background: rgba(255,255,255,0.9);
+      padding: 8px;
+      font-family: monospace;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div id="status">Locating...</div>
+  <div id="map"></div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    const statusBox = document.getElementById("status");
+
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(success, error, {
+        enableHighAccuracy: true
+      });
+    } else {
+      statusBox.innerText = "Geolocation is not supported by this browser.";
+    }
+
+    function success(position) {
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
+      const accuracy = position.coords.accuracy;
+
+      statusBox.innerHTML = `📍 Lat: ${lat.toFixed(5)}<br>📍 Lon: ${lon.toFixed(5)}<br>🎯 Accuracy: ${accuracy.toFixed(1)} m`;
+
+      const map = L.map('map').setView([lat, lon], 16);
+
+      // Add vector tile layer from OpenStreetMap
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+
+      // Marker at current location
+      const marker = L.marker([lat, lon]).addTo(map);
+      marker.bindPopup("🧍 You are here!").openPopup();
+
+      // Accuracy circle
+      L.circle([lat, lon], {
+        radius: accuracy,
+        color: 'blue',
+        fillOpacity: 0.2
+      }).addTo(map);
+    }
+
+    function error(err) {
+      statusBox.innerText = `⚠️ ${err.message}`;
+    }
+  </script>
+</body>
+</html>
