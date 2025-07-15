@@ -18,5 +18,25 @@ document.addEventListener('DOMContentLoaded', () => {
             link.classList.add('active');
         });
     });
+
+    const locEl = document.getElementById('location-data');
+    if (locEl) {
+        if ('geolocation' in navigator) {
+            navigator.geolocation.watchPosition(
+                pos => {
+                    const lat = pos.coords.latitude.toFixed(5);
+                    const lon = pos.coords.longitude.toFixed(5);
+                    locEl.textContent = `LAT: ${lat}\u00B0, LON: ${lon}\u00B0`;
+                },
+                err => {
+                    console.error('Geolocation error:', err);
+                    locEl.textContent = 'LOCATION UNAVAILABLE.';
+                },
+                { enableHighAccuracy: true }
+            );
+        } else {
+            locEl.textContent = 'GEOLOCATION UNSUPPORTED.';
+        }
+    }
 });
 
