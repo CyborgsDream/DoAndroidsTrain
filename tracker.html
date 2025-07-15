@@ -102,7 +102,8 @@
                 `;
 
                 // Counter-rotate the grid so it stays level with the horizon
-                gridHelper.rotation.x = THREE.MathUtils.degToRad(-adjustedBeta);
+                // Adjust beta by 90° so the grid lays flat when the phone is upright
+                gridHelper.rotation.x = THREE.MathUtils.degToRad(90 - adjustedBeta);
                 gridHelper.rotation.z = THREE.MathUtils.degToRad(-adjustedGamma);
                 
                 // Update energy trail (simulated)
