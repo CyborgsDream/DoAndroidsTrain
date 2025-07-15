@@ -105,8 +105,18 @@ scene.add(trail);
 // ====== MAP OVERLAY ====== //
 const mapGroup = new THREE.Group();
 scene.add(mapGroup);
+let mapPlane = null;
 let centerLat = null;
 let centerLon = null;
+
+const GOOGLE_MAPS_API_KEY = (() => {
+  const globalKey =
+    typeof window.GOOGLE_MAPS_API_KEY !== 'undefined'
+      ? window.GOOGLE_MAPS_API_KEY
+      : null;
+  const param = new URLSearchParams(window.location.search).get('googleKey');
+  return param || globalKey || null;
+})();
 
 function fetchMapData(lat, lon) {
   const delta = 0.001; // ~100m bounding box
@@ -140,10 +150,35 @@ function drawMapFeatures(data) {
   });
 }
 
+function fetchGoogleMap(lat, lon) {
+  if (!GOOGLE_MAPS_API_KEY) return;
+  const url =
+    'https://maps.googleapis.com/maps/api/staticmap?' +
+    `center=${lat},${lon}&zoom=18&size=640x640&maptype=roadmap&key=${GOOGLE_MAPS_API_KEY}`;
+  new THREE.TextureLoader().load(
+    url,
+    (texture) => {
+      const size = 10;
+      const geom = new THREE.PlaneGeometry(size, size);
+      const mat = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
+      if (mapPlane) {
+        mapPlane.material.map.dispose();
+        scene.remove(mapPlane);
+      }
+      mapPlane = new THREE.Mesh(geom, mat);
+      mapPlane.rotation.x = -Math.PI / 2;
+      scene.add(mapPlane);
+    },
+    undefined,
+    (err) => console.error('Google map load failed', err)
+  );
+}
+
 function updateMapOverlay(lat, lon) {
   centerLat = lat;
   centerLon = lon;
   fetchMapData(lat, lon);
+  fetchGoogleMap(lat, lon);
 }
 window.updateMapOverlay = updateMapOverlay;
 
