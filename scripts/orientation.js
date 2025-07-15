@@ -102,6 +102,51 @@ const trailMaterial = new THREE.LineBasicMaterial({ color: TRON_COLOR, linewidth
 const trail = new THREE.Line(trailGeometry, trailMaterial);
 scene.add(trail);
 
+// ====== MAP OVERLAY ====== //
+const mapGroup = new THREE.Group();
+scene.add(mapGroup);
+let centerLat = null;
+let centerLon = null;
+
+function fetchMapData(lat, lon) {
+  const delta = 0.001; // ~100m bounding box
+  const bbox = `${lat - delta},${lon - delta},${lat + delta},${lon + delta}`;
+  const query = `[out:json];(way["highway"](${bbox});way["building"](${bbox}););out body geom;`;
+  fetch('https://overpass-api.de/api/interpreter', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: 'data=' + encodeURIComponent(query),
+  })
+    .then((r) => r.json())
+    .then((data) => drawMapFeatures(data))
+    .catch((err) => console.error('Map load failed', err));
+}
+
+function drawMapFeatures(data) {
+  mapGroup.clear();
+  if (!data || !data.elements) return;
+  const scale = 111320 / 10; // rough meters to scene units
+  data.elements.forEach((el) => {
+    if (!el.geometry) return;
+    const points = el.geometry.map((pt) => {
+      const x = (pt.lon - centerLon) * scale * Math.cos(centerLat * Math.PI / 180);
+      const z = (pt.lat - centerLat) * scale;
+      return new THREE.Vector3(x, 0, -z);
+    });
+    const mat = new THREE.LineBasicMaterial({ color: 0xffff00 });
+    const geom = new THREE.BufferGeometry().setFromPoints(points);
+    const line = new THREE.Line(geom, mat);
+    mapGroup.add(line);
+  });
+}
+
+function updateMapOverlay(lat, lon) {
+  centerLat = lat;
+  centerLon = lon;
+  fetchMapData(lat, lon);
+}
+window.updateMapOverlay = updateMapOverlay;
+
 // ====== SENSOR DATA ====== //
 let alpha = 0,
   beta = 0,

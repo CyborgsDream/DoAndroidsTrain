@@ -16,9 +16,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if ('geolocation' in navigator) {
             navigator.geolocation.watchPosition(
                 pos => {
-                    const lat = pos.coords.latitude.toFixed(5);
-                    const lon = pos.coords.longitude.toFixed(5);
-                    locEl.textContent = `LAT: ${lat}\u00B0, LON: ${lon}\u00B0`;
+                    const latNum = pos.coords.latitude;
+                    const lonNum = pos.coords.longitude;
+                    locEl.textContent = `LAT: ${latNum.toFixed(5)}\u00B0, LON: ${lonNum.toFixed(5)}\u00B0`;
+                    if (typeof window.updateMapOverlay === 'function') {
+                        window.updateMapOverlay(latNum, lonNum);
+                    }
                 },
                 err => {
                     console.error('Geolocation error:', err);
