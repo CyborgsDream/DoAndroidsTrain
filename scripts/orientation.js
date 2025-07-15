@@ -131,7 +131,14 @@ function fetchMapData(lat, lon) {
   })
     .then((r) => r.json())
     .then((data) => drawMapFeatures(data))
-    .catch((err) => console.error('Map load failed', err));
+    .catch((err) => {
+      console.error('Map load failed', err);
+      // Fallback to bundled sample data if network request fails
+      fetch('sample_map.json')
+        .then((r) => r.json())
+        .then((data) => drawMapFeatures(data))
+        .catch((e) => console.error('Fallback map load failed', e));
+    });
 }
 
 function drawMapFeatures(data) {
@@ -145,7 +152,7 @@ function drawMapFeatures(data) {
       const z = (pt.lat - centerLat) * scale;
       return new THREE.Vector3(x, 0, -z);
     });
-    const mat = new THREE.LineBasicMaterial({ color: 0xffff00 });
+    const mat = new THREE.LineBasicMaterial({ color: 0xffff00, linewidth: 2 });
     const geom = new THREE.BufferGeometry().setFromPoints(points);
     const line = new THREE.Line(geom, mat);
     mapGroup.add(line);
