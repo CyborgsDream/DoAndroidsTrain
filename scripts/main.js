@@ -26,8 +26,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const locEl = document.getElementById('location-data');
     if (locEl) {
         const FALLBACK_COORDS = { lat: 37.7749, lon: -122.4194 }; // San Francisco
-        function loadFallback() {
-            locEl.textContent = 'LOCATION UNAVAILABLE.';
+        function applyFallback(message) {
+            locEl.textContent = message;
             if (typeof window.updateMapOverlay === 'function') {
                 window.updateMapOverlay(FALLBACK_COORDS.lat, FALLBACK_COORDS.lon);
             }
@@ -45,13 +45,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 err => {
                     console.error('Geolocation error:', err);
-                    loadFallback();
+                    applyFallback('LOCATION UNAVAILABLE.');
                 },
                 { enableHighAccuracy: true }
             );
         } else {
-            locEl.textContent = 'GEOLOCATION UNSUPPORTED.';
-            loadFallback();
+            applyFallback('GEOLOCATION UNSUPPORTED.');
         }
     }
 });

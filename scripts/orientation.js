@@ -111,6 +111,8 @@ let mapPlane = null;
 let centerLat = null;
 let centerLon = null;
 
+// Supply a Google Maps Static API key via window.GOOGLE_MAPS_API_KEY or
+// the URL parameter `?googleKey=YOUR_KEY` to show a static map overlay.
 const GOOGLE_MAPS_API_KEY = (() => {
   const globalKey =
     typeof window.GOOGLE_MAPS_API_KEY !== 'undefined'
