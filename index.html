@@ -9,7 +9,7 @@
 <body>
     <div id="container"></div>
     <div id="ui">
-        <h1>TRON KINETIC TRACKER v0.0.3 <span id="timestamp"></span></h1>
+        <h1>TRON KINETIC TRACKER v0.0.5</h1>
         <p id="rotation-data">Awaiting spatial calibration...</p>
         <p id="location-data"></p>
     </div>
@@ -43,7 +43,7 @@
             const three = document.createElement('script');
             three.src = 'https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js';
             document.head.appendChild(three);
-            loadScript('scripts/orientation.js');
+            three.onload = () => loadScript('scripts/orientation.js');
         }
     </script>
     <script src="scripts/main.js"></script>
