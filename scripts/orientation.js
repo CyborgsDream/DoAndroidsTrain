@@ -102,8 +102,89 @@ const trailMaterial = new THREE.LineBasicMaterial({ color: 0xffff00, linewidth: 
 const trail = new THREE.Line(trailGeometry, trailMaterial);
 scene.add(trail);
 
-// Map overlay disabled
-window.updateMapOverlay = () => {};
+// ====== MAP OVERLAY ====== //
+const mapGroup = new THREE.Group();
+// align map features with the ground grid
+mapGroup.position.y = -2;
+scene.add(mapGroup);
+let mapPlane = null;
+let centerLat = null;
+let centerLon = null;
+
+const GOOGLE_MAPS_API_KEY = (() => {
+  const globalKey =
+    typeof window.GOOGLE_MAPS_API_KEY !== 'undefined'
+      ? window.GOOGLE_MAPS_API_KEY
+      : null;
+  const param = new URLSearchParams(window.location.search).get('googleKey');
+  return param || globalKey || null;
+})();
+
+function fetchMapData(lat, lon) {
+  const delta = 0.001; // ~100m bounding box
+  const bbox = `${lat - delta},${lon - delta},${lat + delta},${lon + delta}`;
+  const query = `[out:json];(way["highway"](${bbox});way["building"](${bbox}););out body geom;`;
+  fetch('https://overpass-api.de/api/interpreter', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: 'data=' + encodeURIComponent(query),
+  })
+    .then((r) => r.json())
+    .then((data) => drawMapFeatures(data))
+    .catch((err) => console.error('Map load failed', err));
+}
+
+function drawMapFeatures(data) {
+  mapGroup.clear();
+  if (!data || !data.elements) return;
+  const scale = 111320 / 10; // rough meters to scene units
+  data.elements.forEach((el) => {
+    if (!el.geometry) return;
+    const points = el.geometry.map((pt) => {
+      const x = (pt.lon - centerLon) * scale * Math.cos(centerLat * Math.PI / 180);
+      const z = (pt.lat - centerLat) * scale;
+      return new THREE.Vector3(x, 0, -z);
+    });
+    const mat = new THREE.LineBasicMaterial({ color: 0xffff00 });
+    const geom = new THREE.BufferGeometry().setFromPoints(points);
+    const line = new THREE.Line(geom, mat);
+    mapGroup.add(line);
+  });
+}
+
+function fetchGoogleMap(lat, lon) {
+  if (!GOOGLE_MAPS_API_KEY) return;
+  const url =
+    'https://maps.googleapis.com/maps/api/staticmap?' +
+    `center=${lat},${lon}&zoom=18&size=640x640&maptype=roadmap&key=${GOOGLE_MAPS_API_KEY}`;
+  new THREE.TextureLoader().load(
+    url,
+    (texture) => {
+      const size = 10;
+      const geom = new THREE.PlaneGeometry(size, size);
+      const mat = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
+      if (mapPlane) {
+        mapPlane.material.map.dispose();
+        scene.remove(mapPlane);
+      }
+      mapPlane = new THREE.Mesh(geom, mat);
+      mapPlane.rotation.x = -Math.PI / 2;
+      // place the texture plane at the same level as the grid
+      mapPlane.position.y = -2;
+      scene.add(mapPlane);
+    },
+    undefined,
+    (err) => console.error('Google map load failed', err)
+  );
+}
+
+function updateMapOverlay(lat, lon) {
+  centerLat = lat;
+  centerLon = lon;
+  fetchMapData(lat, lon);
+  fetchGoogleMap(lat, lon);
+}
+window.updateMapOverlay = updateMapOverlay;
 
 // ====== SENSOR DATA ====== //
 let alpha = 0,
