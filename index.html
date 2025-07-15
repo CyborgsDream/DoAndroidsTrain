@@ -32,21 +32,23 @@
             window.location.search = params.toString();
         });
 
-        function loadScript(src) {
+        function loadScript(src, cb) {
             const s = document.createElement('script');
             s.src = src;
+            if (cb) s.onload = cb;
             document.body.appendChild(s);
         }
 
+        const finishLoad = () => loadScript('scripts/main.js');
+
         if (mode === 'svg') {
-            loadScript('scripts/orientation-svg.js');
+            loadScript('scripts/orientation-svg.js', finishLoad);
         } else {
             const three = document.createElement('script');
             three.src = 'https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js';
             document.head.appendChild(three);
-            three.onload = () => loadScript('scripts/orientation.js');
+            three.onload = () => loadScript('scripts/orientation.js', finishLoad);
         }
     </script>
-    <script src="scripts/main.js"></script>
 </body>
 </html>
