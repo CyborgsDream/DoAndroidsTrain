@@ -3,15 +3,6 @@ console.log('Do Androids Train? Ready to roll!');
 // Simple navigation highlight for demonstration
 function init() {
 
-    const versionEl = document.getElementById("version-string");
-    if (versionEl) {
-        fetch("version")
-            .then(r => r.text())
-            .then(t => { versionEl.textContent = "v" + t.trim(); })
-            .catch(() => { versionEl.textContent = ""; });
-    }
-
-
     const links = document.querySelectorAll('nav a');
     links.forEach(link => {
         link.addEventListener('click', () => {

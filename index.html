@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Tron-Style Fitness Tracker</title>
-    <link id="main-css" rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/main.css">
     <!-- Inline styles mirror tracker.html so index has the same standalone layout -->
     <style>
         body {
@@ -52,7 +52,7 @@
 <body>
     <div id="container"></div>
     <div id="ui">
-        <h1 id="app-heading">TRON KINETIC TRACKER <span id="version-string"></span></h1>
+        <h1 id="app-heading">TRON KINETIC TRACKER v0.0.9 no-cache</h1>
         <p id="heading-display"></p>
         <p id="rotation-data">Awaiting spatial calibration...</p>
         <p id="location-data"></p>
@@ -82,36 +82,16 @@
             document.body.appendChild(s);
         }
 
-        fetch('version', { cache: 'no-cache' })
-            .then(r => r.text())
-            .then(v => v.trim())
-            .then(ver => {
-                const css = document.getElementById('main-css');
-                if (css) css.href = css.getAttribute('href') + '?v=' + ver;
+        const finishLoad = () => loadScript('scripts/main.js');
 
-                const finishLoad = () => loadScript(`scripts/main.js?v=${ver}`);
-
-                if (mode === 'svg') {
-                    loadScript(`scripts/orientation-svg.js?v=${ver}`, finishLoad);
-                } else {
-                    const three = document.createElement('script');
-                    three.src = 'https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js';
-                    document.head.appendChild(three);
-                    three.onload = () => loadScript(`scripts/orientation.js?v=${ver}`, finishLoad);
-                }
-            })
-            .catch(() => {
-                const finishLoad = () => loadScript('scripts/main.js');
-
-                if (mode === 'svg') {
-                    loadScript('scripts/orientation-svg.js', finishLoad);
-                } else {
-                    const three = document.createElement('script');
-                    three.src = 'https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js';
-                    document.head.appendChild(three);
-                    three.onload = () => loadScript('scripts/orientation.js', finishLoad);
-                }
-            });
+        if (mode === 'svg') {
+            loadScript('scripts/orientation-svg.js', finishLoad);
+        } else {
+            const three = document.createElement('script');
+            three.src = 'https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js';
+            document.head.appendChild(three);
+            three.onload = () => loadScript('scripts/orientation.js', finishLoad);
+        }
     </script>
 </body>
 </html>
