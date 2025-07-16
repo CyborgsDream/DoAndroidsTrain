@@ -26,7 +26,8 @@ function init() {
                 pos => {
                     const latNum = pos.coords.latitude;
                     const lonNum = pos.coords.longitude;
-                    locEl.textContent = `LAT: ${latNum.toFixed(5)}\u00B0, LON: ${lonNum.toFixed(5)}\u00B0`;
+                    const accuracy = pos.coords.accuracy;
+                    locEl.textContent = `LAT: ${latNum.toFixed(5)}\u00B0, LON: ${lonNum.toFixed(5)}\u00B0 (±${accuracy.toFixed(1)} m)`;
                     if (typeof window.updateMapOverlay === 'function') {
                         window.updateMapOverlay(latNum, lonNum);
                     }
