@@ -1,7 +1,7 @@
 console.log('Do Androids Train? Ready to roll!');
 
 // Simple navigation highlight for demonstration
-document.addEventListener('DOMContentLoaded', () => {
+function init() {
 
     fetch('version')
         .then(r => r.text())
@@ -53,5 +53,11 @@ document.addEventListener('DOMContentLoaded', () => {
             applyFallback('GEOLOCATION UNSUPPORTED.');
         }
     }
-});
+}
+
+if (document.readyState !== 'loading') {
+    init();
+} else {
+    document.addEventListener('DOMContentLoaded', init);
+}
 
