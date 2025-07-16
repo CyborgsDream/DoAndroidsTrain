@@ -3,17 +3,6 @@ console.log('Do Androids Train? Ready to roll!');
 // Simple navigation highlight for demonstration
 function init() {
 
-    fetch('version')
-        .then(r => r.text())
-        .then(v => {
-            const digits = v.trim().padStart(3, '0');
-            const formatted = `v${digits[0]}.${digits[1]}.${digits[2]}`;
-            const headingEl = document.getElementById('app-heading');
-            if (headingEl) {
-                headingEl.textContent += ' ' + formatted;
-            }
-        })
-        .catch(err => console.error('Version load failed', err));
 
     const links = document.querySelectorAll('nav a');
     links.forEach(link => {
