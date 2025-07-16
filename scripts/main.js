@@ -33,7 +33,13 @@ function init() {
                 },
                 err => {
                     console.error('Geolocation error:', err);
-                    applyFallback('LOCATION UNAVAILABLE.');
+                    let message = 'LOCATION UNAVAILABLE.';
+                    if (err.code === err.PERMISSION_DENIED) {
+                        message = 'LOCATION PERMISSION DENIED.';
+                    } else if (err.code === err.TIMEOUT) {
+                        message = 'LOCATION TIMEOUT.';
+                    }
+                    applyFallback(message);
                 },
                 { enableHighAccuracy: true }
             );
