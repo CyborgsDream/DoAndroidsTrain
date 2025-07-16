@@ -206,6 +206,8 @@ const euler = new THREE.Euler();
 const q0 = new THREE.Quaternion();
 const q1 = new THREE.Quaternion(-Math.sqrt(0.5), 0, 0, Math.sqrt(0.5));
 let calibrationQuaternion = new THREE.Quaternion();
+// Cache optional UI element that may not exist on all pages
+const headingDisplayEl = document.getElementById('heading-display');
 
 // ====== TRANSLATION STATE ====== //
 let velocityZ = 0;
@@ -261,7 +263,9 @@ window.addEventListener('deviceorientation', (event) => {
 
   const camEuler = new THREE.Euler().setFromQuaternion(camera.quaternion, 'YXZ');
   const headingDeg = (THREE.MathUtils.radToDeg(camEuler.y) + 360) % 360;
-  document.getElementById('heading-display').textContent = `HEADING: ${headingDeg.toFixed(1)}°`;
+  if (headingDisplayEl) {
+    headingDisplayEl.textContent = `HEADING: ${headingDeg.toFixed(1)}°`;
+  }
   document.getElementById('rotation-data').innerHTML = `KINETIC FEEDBACK:<br>α: ${THREE.MathUtils.radToDeg(camEuler.y).toFixed(1)}°<br>β: ${THREE.MathUtils.radToDeg(camEuler.x).toFixed(1)}°<br>γ: ${THREE.MathUtils.radToDeg(camEuler.z).toFixed(1)}°<br>`;
 
   // Update energy trail (simulated)
