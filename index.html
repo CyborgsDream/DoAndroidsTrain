@@ -56,6 +56,7 @@
         <p id="heading-display"></p>
         <p id="rotation-data">Awaiting spatial calibration...</p>
         <p id="location-data"></p>
+        <div id="demo-list"></div>
     </div>
     <div id="calibration">
         <button id="calibrate-btn">CALIBRATE GRID</button>
@@ -92,6 +93,38 @@
             document.head.appendChild(three);
             three.onload = () => loadScript('scripts/orientation.js', finishLoad);
         }
+    </script>
+
+    <!-- Load demo file list -->
+    <script>
+        const demoEl = document.getElementById('demo-list');
+        fetch('https://cyborgsdream.github.io/tron/demos.json')
+            .then(r => r.json())
+            .then(items => {
+                if (!Array.isArray(items)) return;
+                const ul = document.createElement('ul');
+                items.forEach(item => {
+                    let url, label;
+                    if (typeof item === 'string') {
+                        url = item;
+                        label = item;
+                    } else {
+                        url = item.url || item.href || item.file || '#';
+                        label = item.name || item.title || url;
+                    }
+                    const li = document.createElement('li');
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.textContent = label;
+                    li.appendChild(a);
+                    ul.appendChild(li);
+                });
+                demoEl.appendChild(ul);
+            })
+            .catch(err => {
+                demoEl.textContent = 'Demo list unavailable.';
+                console.error('Failed to load demos list', err);
+            });
     </script>
 </body>
 </html>
